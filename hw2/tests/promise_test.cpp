@@ -57,27 +57,27 @@ TEST(promise, Set_void) {
     ASSERT_TRUE(f.IsReady());
 }
 
-//TEST(promise, two_threads_get_set) {
-//    Promise<int> promise;
-//    Future<int> future = promise.GetFuture();
-//
-//    int x = 777;
-//
-//    std::thread t(
-//        [x] (Promise<int> promise) {
-//            std::this_thread::sleep_for(std::chrono::seconds(1));
-//
-//            promise.Set(x);
-//        }, std::move(promise)
-//    );
-//
-//    for (int i = 0; !future.IsReady(); ++i) {
-//        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-//    }
-//
-//    ASSERT_EQ(future.Get(), x);
-//
-//    t.join();
-//}
+TEST(promise, two_threads_get_set) {
+    Promise<int> promise;
+    Future<int> future = promise.GetFuture();
+
+    int x = 777;
+
+    std::thread t(
+        [x] (Promise<int> promise) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+            promise.Set(x);
+        }, std::move(promise)
+    );
+
+    for (int i = 0; !future.IsReady(); ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    ASSERT_EQ(future.Get(), x);
+
+    t.join();
+}
 
 #endif // _GTEST

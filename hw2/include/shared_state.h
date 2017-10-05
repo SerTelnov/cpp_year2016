@@ -22,28 +22,18 @@ public:
 
     void notify_one() { cv.notify_one(); }
 
-    bool is_ready() { return _is_ready; }
-    void set_ready() { _is_ready = true; }
-
     std::exception_ptr get_error() { return _error; }
-    bool was_error() { return _was_error; }
 
     void set_error(const std::exception_ptr & e) {
         _error = e;
         _was_error = true;
     }
 
-    void set_has_promise() { _has_promise = true; }
-    void destroy_promise() { _has_promise = false; }
-    bool has_promise() { return _has_promise; }
-
-protected:
     std::atomic_bool _is_ready;
     std::atomic_bool _was_error;
     std::atomic_bool _has_promise;
     std::exception_ptr _error;
 
-public:
     std::mutex locker;
     std::condition_variable cv;
 };
@@ -70,7 +60,6 @@ private:
 
     friend class Promise<void>;
     friend class Future<void>;
-
 };
 
 template<typename T>

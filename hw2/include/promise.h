@@ -15,7 +15,7 @@ public:
             : _state(new shared_state<T>()),
               _future_exist(false)
     {
-        _state->set_has_promise();
+        _state->_has_promise = true;
     }
 
     Promise(Promise && that) noexcept
@@ -27,11 +27,11 @@ public:
         return *this;
     }
 
-    Promise(Promise &) = delete;
-    Promise & operator=(Promise &) = delete;
+    Promise(Promise const &) = delete;
+    Promise & operator=(Promise const &) = delete;
 
     ~Promise() {
-        _state->destroy_promise();
+        _state->_has_promise = false;
     }
 
     void Set(const T &);
@@ -53,12 +53,12 @@ template<typename T>
 inline void Promise<T>::Set(const T & value) {
     check_state();
     std::unique_lock<std::mutex> lock(_state->locker);
-    if (_state->is_ready()) {
+    if (_state->_is_ready) {
         throw std::logic_error("recall Set");
     }
     _state->value = value;
 
-    _state->set_ready();
+    _state->_is_ready = true;
     _state->notify_one();
 }
 
@@ -66,12 +66,12 @@ template<typename T>
 inline void Promise<T>::Set(const T && value) {
     check_state();
     std::unique_lock<std::mutex> lock(_state->locker);
-    if (_state->is_ready()) {
+    if (_state->_is_ready) {
         throw std::logic_error("recall Set");
     }
     _state->value = std::move(value);
 
-    _state->set_ready();
+    _state->_is_ready = true;
     _state->notify_one();
 }
 
@@ -79,7 +79,7 @@ template<typename T>
 inline void Promise<T>::SetException(const std::exception_ptr & e) {
     check_state();
     std::unique_lock<std::mutex> lock(_state->locker);
-    if (_state->was_error()) {
+    if (_state->_was_error) {
         throw std::logic_error("recall Set exception");
     }
     _state->set_error(e);
@@ -145,11 +145,11 @@ private:
 inline void Promise<void>::Set() {
     check_state();
     std::unique_lock<std::mutex> lock(_state->locker);
-    if (_state->is_ready()) {
+    if (_state->_is_ready) {
         throw std::logic_error("recall Set");
     }
 
-    _state->set_ready();
+    _state->_is_ready = true;
     _state->notify_one();
 }
 
@@ -166,7 +166,7 @@ inline Future<void> Promise<void>::GetFuture() {
 inline void Promise<void>::SetException(const std::exception_ptr &e) {
     check_state();
     std::unique_lock<std::mutex> lock(_state->locker);
-    if (_state->was_error()) {
+    if (_state->_was_error) {
         throw std::logic_error("recall Set exception");
     }
     _state->set_error(e);
@@ -179,7 +179,7 @@ public:
             : _state(new shared_state<T &>()),
               _future_exist(false)
     {
-        _state->set_has_promise();
+        _state->_has_promise = true;
     }
 
     Promise(Promise && that) noexcept
@@ -195,7 +195,7 @@ public:
     Promise & operator=(Promise &) = delete;
 
     ~Promise() {
-        _state->destroy_promise();
+        _state->_has_promise = false;
     }
 
     void Set(T &);
@@ -216,12 +216,12 @@ template <typename T>
 void Promise<T &>::Set(T & value) {
     check_state();
     std::unique_lock<std::mutex> lock(_state->locker);
-    if (_state->is_ready()) {
+    if (_state->_is_ready) {
         throw std::logic_error("recall Set");
     }
     _state->value = & value;
 
-    _state->set_ready();
+    _state->_is_ready = true;
     _state->notify_one();
 }
 
@@ -229,7 +229,7 @@ template<typename T>
 inline void Promise<T &>::SetException(const std::exception_ptr &e) {
     check_state();
     std::unique_lock<std::mutex> lock(_state->locker);
-    if (_state->was_error()) {
+    if (_state->_was_error) {
         throw std::logic_error("recall Set exception");
     }
     _state->set_error(e);

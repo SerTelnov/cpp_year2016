@@ -41,11 +41,11 @@ private:
 
 template<typename T>
 inline T Future<T>::Get() const {
-    if (_state->was_error()) {
+    if (_state->_was_error) {
         throw _state->get_error();
     }
     if (!IsReady()) {
-        if (!_state->has_promise()) {
+        if (!_state->_has_promise) {
             throw std::logic_error("Future is invalidate");
         }
         Wait();
@@ -56,15 +56,15 @@ inline T Future<T>::Get() const {
 template<typename T>
 inline void Future<T>::Wait() const {
     std::unique_lock<std::mutex> lock(_state->locker);
-    if (_state->is_ready())
+    if (_state->_is_ready)
         return;
     _state->cv.wait(lock);
-    _state->set_ready();
+    _state->_is_ready = true;
 }
 
 template<typename T>
 inline bool Future<T>::IsReady() const {
-    return _state->is_ready();
+    return _state->_is_ready;
 }
 
 template<>
@@ -84,11 +84,11 @@ public:
     ~Future() = default;
 
     void Get() const {
-        if (_state->was_error()) {
+        if (_state->_was_error) {
             throw _state->get_error();
         }
         if (!IsReady()) {
-            if (!_state->has_promise()) {
+            if (!_state->_has_promise) {
                 throw std::logic_error("Future is invalidate");
             }
             Wait();
@@ -96,13 +96,13 @@ public:
     }
     void Wait() const {
         std::unique_lock<std::mutex> lock(_state->locker);
-        if (_state->is_ready())
+        if (_state->_is_ready)
             return;
         _state->cv.wait(lock);
-        _state->set_ready();
+        _state->_is_ready = true;
     }
     bool IsReady() const {
-        return _state->is_ready();
+        return _state->_is_ready;
     }
 
     friend class Promise<void>;
@@ -145,11 +145,11 @@ private:
 
 template<typename T>
 inline T & Future<T &>::Get() const {
-    if (_state->was_error()) {
+    if (_state->_was_error) {
         throw _state->get_error();
     }
     if (!IsReady()) {
-        if (!_state->has_promise()) {
+        if (!_state->_has_promise) {
             throw std::logic_error("Future is invalidate");
         }
         Wait();
@@ -160,15 +160,15 @@ inline T & Future<T &>::Get() const {
 template<typename T>
 inline void Future<T &>::Wait() const {
     std::unique_lock<std::mutex> lock(_state->locker);
-    if (_state->is_ready())
+    if (_state->_is_ready)
         return;
     _state->cv.wait(lock);
-    _state->set_ready();
+    _state->_is_ready = true;
 }
 
 template<typename T>
 inline bool Future<T &>::IsReady() const {
-    return _state->is_ready();
+    return _state->_is_ready;
 }
 
 #endif //CPP_COURSE_CLION_FUTURE_H
