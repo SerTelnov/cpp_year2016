@@ -3,8 +3,8 @@
 //
 #ifdef _GTEST
 
-#include "../include/Promise.h"
-#include "../include/Future.h"
+#include "promise.h"
+#include "future.h"
 
 #include <thread>
 #include <gtest/gtest.h>
@@ -80,4 +80,20 @@ TEST(promise, two_threads_get_set) {
     t.join();
 }
 
+TEST(promise, two_threads_get_throw_exception) {
+    Promise<int> promise;
+    Future<int> future = promise.GetFuture();
+
+    int x = 777;
+
+    std::thread t(
+        [x] (Promise<int> promise) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }, std::move(promise)
+    );
+
+    ASSERT_ANY_THROW(future.Get());
+
+    t.join();
+}
 #endif // _GTEST

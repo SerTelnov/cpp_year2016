@@ -2,10 +2,9 @@
 // Created by Sergey on 02.10.2017.
 //
 
-#ifndef CPP_COURSE_CLION_PROMISE_H
-#define CPP_COURSE_CLION_PROMISE_H
+#pragma once
 
-#include "Future.h"
+#include "future.h"
 #include "shared_state.h"
 
 template<typename T>
@@ -19,7 +18,7 @@ public:
     }
 
     Promise(Promise && that) noexcept
-        : _state(that._state)
+            : _state(that._state)
     { }
 
     Promise & operator= (Promise && that) noexcept {
@@ -253,4 +252,3 @@ inline void Promise<T &>::check_state() {
     }
 }
 
-#endif //CPP_COURSE_CLION_PROMISE_H

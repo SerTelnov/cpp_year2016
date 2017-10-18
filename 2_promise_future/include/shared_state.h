@@ -2,8 +2,7 @@
 // Created by Sergey on 02.10.2017.
 //
 
-#ifndef CPP_COURSE_CLION_SHARED_STATE_H
-#define CPP_COURSE_CLION_SHARED_STATE_H
+#pragma once
 
 #include <mutex>
 #include <condition_variable>
@@ -15,9 +14,9 @@ template <typename> class Future;
 class basic_shared_state {
 public:
     basic_shared_state()
-        : _is_ready{false},
-          _was_error{false},
-          _has_promise{false}
+            : _is_ready{false},
+              _was_error{false},
+              _has_promise{false}
     { }
 
     void notify_one() { cv.notify_one(); }
@@ -66,7 +65,7 @@ template<typename T>
 class shared_state<T &> : public basic_shared_state {
 private:
     shared_state() noexcept
-        : basic_shared_state()
+            : basic_shared_state()
     { }
 
     friend class Promise<T &>;
@@ -75,5 +74,3 @@ private:
 private:
     T * value;
 };
-
-#endif //CPP_COURSE_CLION_SHARED_STATE_H

@@ -2,8 +2,7 @@
 // Created by Sergey on 02.10.2017.
 //
 
-#ifndef CPP_COURSE_CLION_FUTURE_H
-#define CPP_COURSE_CLION_FUTURE_H
+#pragma once
 
 #include <memory>
 #include "shared_state.h"
@@ -13,16 +12,31 @@ template <typename> class Promise;
 template<typename T>
 class Future {
 public:
-    Future(Future && that) noexcept
-        : _state(that._state)
+    explicit Future()
+            : _state(new shared_state<T>())
     { }
+
+    Future(Future && that) noexcept
+            : _state(that._state)
+    { }
+
     Future & operator=(Future && that) noexcept {
-        *this = std::move(that);
+        if (this != &that) {
+            _state = that._state;
+        }
         return *this;
     }
 
-    Future(Future const &) = delete;
-    Future & operator=(Future const &) = delete;
+    Future(Future const & that)
+            : _state(that._state)
+    { }
+
+    Future & operator=(Future const & that) {
+        if (this != &that) {
+            _state = that._state;
+        }
+        return *this;
+    }
 
     ~Future() = default;
 
@@ -108,8 +122,8 @@ public:
     friend class Promise<void>;
 private:
     explicit Future(std::shared_ptr<shared_state<void>> state)
-            : _state(state)
-    { }
+    : _state(state)
+            { }
 private:
     std::shared_ptr<shared_state<void>> _state;
 };
@@ -137,8 +151,8 @@ public:
     friend class Promise<T &>;
 private:
     explicit Future(std::shared_ptr<shared_state<T &>> state)
-            : _state(state)
-    { }
+    : _state(state)
+            { }
 private:
     std::shared_ptr<shared_state<T &>> _state;
 };
@@ -171,4 +185,3 @@ inline bool Future<T &>::IsReady() const {
     return _state->_is_ready;
 }
 
-#endif //CPP_COURSE_CLION_FUTURE_H
