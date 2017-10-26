@@ -6,6 +6,7 @@
 
 #include <type_traits>
 #include "../../2_promise_future/include/future.h"
+#include <thread>
 
 template<typename T>
 Future<T> Flatten(Future<T> const & that) {
@@ -31,8 +32,26 @@ struct Impl<Future<Future<T>>> {
 };
 
 template <typename T>
-Future<typename Impl<T>::inner_t> Flatten(Future<Future<T>> const & that) {
-    Promise<typename Impl<T>::inner_t> promise;
+T FlattenImpl(Future<T> const & that) {
+    return that.Get();
+}
+
+template <typename T>
+T FlattenImpl(Future<Future<T>> const & that) {
+    return FlattenImpl(that.Get());
+}
+
+template <typename T>
+Future<typename Impl<Future<T>>::inner_t> Flatten(Future<Future<T>> const & that) {
+    Promise<typename Impl<Future<T>>::inner_t> promise;
+
+    std::thread value_getter = std::thread([&] {
+        auto value = FlattenImpl(that);
+        promise.Set(value);
+    });
+
+    value_getter.detach();
+
     return promise.GetFuture();
 }
 
