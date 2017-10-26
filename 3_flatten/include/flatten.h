@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <type_traits>
 #include "../../2_promise_future/include/future.h"
 #include <thread>
 
@@ -32,12 +31,12 @@ struct Impl<Future<Future<T>>> {
 };
 
 template <typename T>
-T FlattenImpl(Future<T> const & that) {
+typename Impl<Future<T>>::inner_t FlattenImpl(Future<T> const & that) {
     return that.Get();
 }
 
 template <typename T>
-T FlattenImpl(Future<Future<T>> const & that) {
+typename Impl<Future<T>>::inner_t FlattenImpl(Future<Future<T>> const & that) {
     return FlattenImpl(that.Get());
 }
 
@@ -46,7 +45,7 @@ Future<typename Impl<Future<T>>::inner_t> Flatten(Future<Future<T>> const & that
     Promise<typename Impl<Future<T>>::inner_t> promise;
 
     std::thread value_getter = std::thread([&] {
-        auto value = FlattenImpl(that);
+        typename Impl<Future<T>>::inner_t value = FlattenImpl(that);
         promise.Set(value);
     });
 
@@ -57,14 +56,20 @@ Future<typename Impl<Future<T>>::inner_t> Flatten(Future<Future<T>> const & that
 
 template<template<typename, typename...> class C, typename T>
 Future<C<T>> Flatten(C<Future<T>> const & that) {
-    C<T> data(that.size());
-    auto curr = data.begin();
-    for (auto item = that.begin(); item != that.end(); ++item) {
-        *curr = item->Get();
-        ++curr;
-    }
     Promise<C<T>> promise;
-    promise.Set(data);
+
+    std::thread values_getter = std::thread([&] {
+        C<T> data(that.size());
+        auto curr = data.begin();
+        for (auto item = that.begin(); item != that.end(); ++item) {
+            *curr = item->Get();
+            ++curr;
+        }
+        promise.Set(data);
+    });
+
+    values_getter.detach();
+
     return promise.GetFuture();
 }
 
