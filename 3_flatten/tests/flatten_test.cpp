@@ -1,11 +1,11 @@
 //
 // Created by eugene on 11.10.2017
 //
+
 #ifdef _GTEST
 
 #include "flatten.h"
 #include "../../2_promise_future/include/promise.h"
-#include <thread>
 #include <gtest/gtest.h>
 
 
@@ -23,7 +23,7 @@ TEST(flatten, two_deep) {
     Promise<Future<int>> promise2;
     promise2.Set(future1);
     Future<Future<int>> f = promise2.GetFuture();
-    auto future = Flatten(f);
+    Future<int> future = Flatten(f);
 }
 
 TEST(flatten, three_deep) {

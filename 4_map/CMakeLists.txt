@@ -1,4 +1,4 @@
-project(flatten)
+project(map)
 cmake_minimum_required(VERSION 3.2)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pedantic -Wall -Wextra -Wno-char-subscripts -Wno-unused-result -g")
@@ -12,10 +12,10 @@ file(GLOB_RECURSE HEADER_FILES include/*.h tests/*.h)
 include_directories(include)
 include_directories(2_promise_future/include)
 
-set(ENV{GTEST} y)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "3_flatten")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "4_map")
 set(3D_PARTY_HOME ../../3dparty)
+
+set(ENV{GTEST} y)
 
 if ("$ENV{GTEST}" STREQUAL "y")
     message("!Gtests're enabled!")

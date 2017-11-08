@@ -44,6 +44,8 @@ private:
             : basic_shared_state()
     { }
 
+    std::function<void(T const &)> func;
+
     friend class Promise<T>;
     friend class Future<T>;
 private:

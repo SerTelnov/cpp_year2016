@@ -44,6 +44,14 @@ public:
     void Wait() const;
     bool IsReady() const;
 
+    void SetFunc(std::function<void(T const &)> func) {
+        if (IsReady()) {
+            func(_state->value);
+        } else {
+            _state->func = func;
+        }
+    }
+
     friend class Promise<T>;
 private:
     explicit Future(std::shared_ptr<shared_state<T>> state)

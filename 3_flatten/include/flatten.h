@@ -72,16 +72,3 @@ Future<C<T>> Flatten(C<Future<T>> const & that) {
 
     return promise.GetFuture();
 }
-
-//template<template<typename, typename...> class C, typename T, typename... Targs>
-//typename std::enable_if<&C<Future<T>, Targs...>::begin != nullptr, Future<C<T, Targs...>>>::type Flatten(C<Future<T>, Targs...> const & that) {
-//    C<T> data(that.size());
-//    auto curr = data.begin();
-//    for (auto item = that.begin(); item != that.end(); ++item) {
-//        *curr = item->Get();
-//        ++curr;
-//    }
-//    Promise<C<T>> promise;
-//    promise.Set(data);
-//    return promise.GetFuture();
-//}

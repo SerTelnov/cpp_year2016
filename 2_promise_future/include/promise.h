@@ -56,8 +56,11 @@ inline void Promise<T>::Set(const T & value) {
         throw std::logic_error("recall Set");
     }
     _state->value = value;
-
     _state->_is_ready = true;
+    if (_state->func) {
+        _state->func(value);
+    }
+
     _state->notify_one();
 }
 
@@ -69,8 +72,11 @@ inline void Promise<T>::Set(const T && value) {
         throw std::logic_error("recall Set");
     }
     _state->value = std::move(value);
-
     _state->_is_ready = true;
+    if (_state->func) {
+        _state->func(value);
+    }
+
     _state->notify_one();
 }
 
