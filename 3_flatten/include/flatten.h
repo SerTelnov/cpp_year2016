@@ -44,10 +44,10 @@ template <typename T>
 Future<typename Impl<Future<T>>::inner_t> Flatten(Future<Future<T>> const & that) {
     Promise<typename Impl<Future<T>>::inner_t> promise;
 
-    std::thread value_getter = std::thread([&] {
+    std::thread value_getter = std::thread([&that](Promise<typename Impl<Future<T>>::inner_t> promise1) {
         typename Impl<Future<T>>::inner_t value = FlattenImpl(that);
-        promise.Set(value);
-    });
+        promise1.Set(value);
+    }, std::move(promise));
 
     value_getter.detach();
 
@@ -58,15 +58,15 @@ template<template<typename, typename...> class C, typename T>
 Future<C<T>> Flatten(C<Future<T>> const & that) {
     Promise<C<T>> promise;
 
-    std::thread values_getter = std::thread([&] {
+    std::thread values_getter = std::thread([&that](Promise<C<T>> promise1) {
         C<T> data(that.size());
         auto curr = data.begin();
         for (auto item = that.begin(); item != that.end(); ++item) {
             *curr = item->Get();
             ++curr;
         }
-        promise.Set(data);
-    });
+        promise1.Set(data);
+    }, std::move(promise));
 
     values_getter.detach();
 

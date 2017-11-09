@@ -7,14 +7,12 @@
 
 #include "../../2_promise_future/include/promise.h"
 
-//template <typename T, typename F>
-//using Type = std::result_of<F(T)>::type;
-
 template <typename T, typename F>
 Future<typename std::result_of<F(T)>::type> Map(Future<T> & init_future, const F & func) {
+    using Type = typename std::result_of<F(T)>::type;
 
-    Promise<typename std::result_of<F(T)>::type> promise;
-    Future<typename std::result_of<F(T)>::type> future = promise.GetFuture();
+    Promise<Type> promise;
+    Future<Type> future = promise.GetFuture();
 
     init_future.SetFunc([&func, &promise] (T const &value) {
         promise.Set(func(value));
