@@ -16,14 +16,18 @@ public:
             : _state(new shared_state<T>())
     { }
 
+    void swap(Future & that) {
+        std::swap(_state, that._state);
+    }
+
     Future(Future && that) noexcept
-            : _state(that._state)
-    { }
+        : _state(nullptr)
+    {
+        swap(that);
+    }
 
     Future & operator=(Future && that) noexcept {
-        if (this != &that) {
-            _state = that._state;
-        }
+        swap(that);
         return *this;
     }
 

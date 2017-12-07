@@ -128,8 +128,9 @@ public:
     Promise(Promise &) = delete;
     Promise & operator=(Promise &) = delete;
 
-    ~Promise()
-    { }
+    ~Promise() {
+        _state->_has_promise = false;
+    }
 
     void Set();
     void SetException(const std::exception_ptr &);

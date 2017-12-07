@@ -58,17 +58,13 @@ template<template<typename, typename...> class C, typename T>
 Future<C<T>> Flatten(C<Future<T>> const & that) {
     Promise<C<T>> promise;
 
-    std::thread values_getter = std::thread([&that](Promise<C<T>> promise1) {
-        C<T> data(that.size());
-        auto curr = data.begin();
-        for (auto item = that.begin(); item != that.end(); ++item) {
-            *curr = item->Get();
-            ++curr;
-        }
-        promise1.Set(data);
-    }, std::move(promise));
-
-    values_getter.detach();
+    C<T> data(that.size());
+    auto curr = data.begin();
+    for (auto item = that.begin(); item != that.end(); ++item) {
+        *curr = item->Get();
+        ++curr;
+    }
+    promise.Set(data);
 
     return promise.GetFuture();
 }
