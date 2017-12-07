@@ -11,7 +11,7 @@ file(GLOB_RECURSE HEADER_FILES include/*.h tests/*.h)
 
 include_directories(include)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "1_thread_pool_task")
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "1_thread_pool_task")
 set(3D_PARTY_HOME ../../3dparty)
 
 set(ENV{GTEST} y)

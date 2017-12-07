@@ -1,12 +1,10 @@
 //
 // Created by eugene on 14.9.2017
 //
+
 #ifdef _GTEST
 
 #include "thread_pool.h"
-
-#include <atomic>
-
 #include <gtest/gtest.h>
 
 TEST(thread_pool, one_thread_one_task) {
@@ -53,6 +51,44 @@ TEST(thread_pool, one_thread_several_tasks) {
     }
 
     ASSERT_EQ(counter, cnt_tasks);
+}
+
+TEST(thread_pool, parallel_simple_tast) {
+    std::vector<int> arr = {1, 2, 3, 4, 5, 6};
+    std::vector<int> values = arr;
+
+    std::function<void(int&)> square_fun = [](int& x) {
+        x = x * x;
+    };
+
+    thread_pool pool(2);
+    pool.Parallel(arr.begin(), arr.end(), square_fun);
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    for (size_t i = 0; i != arr.size(); ++i) {
+        ASSERT_EQ(values[i] * values[i], arr[i]);
+    }
+}
+
+TEST(thread_pool, parallel_random_test) {
+    std::vector<int> arr(100000);
+    for (auto & value: arr) {
+        value = rand();
+    }
+
+    std::vector<int> values = arr;
+
+    thread_pool pool(10);
+    pool.Parallel(arr.begin(), arr.end(), [](int& x) {
+        x = x + 10;
+    });
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    for (size_t i = 0; i != arr.size(); ++i) {
+        ASSERT_EQ(values[i] + 10, arr[i]);
+    }
 }
 
 #endif // _GTEST

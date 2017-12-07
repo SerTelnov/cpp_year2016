@@ -22,7 +22,6 @@ thread_pool::~thread_pool() {
     }
 }
 
-
 void thread_pool::execute(std::function<void()> const & new_task) {
     std::unique_lock<std::mutex> lock(_mutex);
     _tasks.push(new_task);
@@ -51,3 +50,4 @@ void thread_pool::action_fn() {
         catch (...) {}
     }
 }
+
